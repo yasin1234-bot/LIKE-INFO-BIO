@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio Studio & Game Panel</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4 font-sans">
+
+    <div class="w-full max-w-md bg-gray-950 p-6 rounded-3xl shadow-2xl border border-gray-800">
+        <h1 class="text-2xl font-black text-center bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent mb-6">FF LIKE WEBSITE</h1>
+        
+        <!-- Tabs -->
+        <div class="flex bg-gray-900/80 p-1.5 rounded-2xl border border-gray-800/80 mb-6 gap-1">
+            <button id="likeTabBtn" onclick="switchTab('like')" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 bg-emerald-600 text-white shadow-lg shadow-emerald-900/30">👍 Likes</button>
+            <button id="infoTabBtn" onclick="switchTab('info')" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 text-gray-400 hover:text-white">🔍 Info</button>
+            <button id="bioTabBtn" onclick="switchTab('bio')" class="flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 text-gray-400 hover:text-white">📝 Bio</button>
+        </div>
+        
+        <div class="relative">
+            <!-- Likes Tab -->
+            <div id="likeTab" class="tab-content active flex-col space-y-4">
+                <h2 class="text-lg font-bold text-emerald-400 flex items-center gap-2"><span>⚡</span> Send Likes</h2>
+                <input type="text" id="likeUidInput" placeholder="Enter Player UID" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
+                <select id="serverInput" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:outline-none focus:border-emerald-500 text-sm">
+                    <option value="bd">Bangladesh (BD)</option>
+                </select>
+                <button onclick="sendLike()" class="w-full bg-emerald-600 hover:bg-emerald-500 font-bold py-3 rounded-xl transition shadow-lg shadow-emerald-900/20">Send Likes</button>
+            </div>
+
+            <!-- Info Tab -->
+            <div id="infoTab" class="tab-content flex-col space-y-4">
+                <h2 class="text-lg font-bold text-indigo-400 flex items-center gap-2"><span>🔍</span> Fetch Info</h2>
+                <input type="text" id="infoUidInput" placeholder="Enter Player UID" class="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-xl focus:outline-none focus:border-indigo-500 text-sm">
+                <button onclick="fetchInfo()" class="w-full bg-indigo-600 hover:bg-indigo-500 font-bold py-3 rounded-xl transition shadow-lg shadow-indigo-900/20">Fetch Details</button>
+            </div>
+
+            <!-- Bio Studio Tab -->
+            <div id="bioTab" class="tab-content flex-col space-y-4">
+                <div class="bg-gray-900/60 p-4 rounded-2xl border border-gray-800 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-base font-black text-amber-400 flex items-center gap-1.5">📝 Bio Studio</h2>
+                        <span class="text-[10px] bg-gradient-to-r from-emerald-500 to-teal-500 text-black px-2 py-0.5 rounded-full font-black uppercase">Rich Editor</span>
+                    </div>
+
+                    <!-- Quick Format Buttons -->
+                    <div class="space-y-1.5">
+                        <span class="text-[10px] font-bold text-gray-500 tracking-wider uppercase">⚡ Quick Format</span>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="insertFormat('[c]')" class="py-2 bg-gray-800 hover:bg-gray-700 text-xs rounded-lg border border-gray-700/60 transition">[c] Center</button>
+                            <button onclick="insertFormat('[b]')" class="py-2 bg-gray-800 hover:bg-gray-700 text-xs rounded-lg border border-gray-700/60 transition">[b] Bold</button>
+                            <button onclick="insertFormat('\n')" class="py-2 bg-gray-800 hover:bg-gray-700 text-xs rounded-lg border border-gray-700/60 transition">↵ Line Break</button>
+                        </div>
+                        <div class="pt-1 flex justify-end">
+                            <button onclick="clearBioText()" class="px-4 py-1.5 bg-red-950/40 text-red-400 hover:bg-red-900/40 text-xs rounded-lg border border-red-900/30 transition">🗑️ Clear Box</button>
+                        </div>
+                    </div>
+
+                    <!-- Colors -->
+                    <div class="space-y-1.5">
+                        <span class="text-[10px] font-bold text-gray-500 tracking-wider uppercase">🎨 Colors</span>
+                        <div class="grid grid-cols-7 gap-2">
+                            <div onclick="insertColor('FFFFFF')" class="w-5 h-5 rounded-full bg-white cursor-pointer border border-gray-600 mx-auto"></div>
+                            <div onclick="insertColor('FF3333')" class="w-5 h-5 rounded-full bg-red-500 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('33FF88')" class="w-5 h-5 rounded-full bg-emerald-400 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('3388FF')" class="w-5 h-5 rounded-full bg-blue-500 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('FFD700')" class="w-5 h-5 rounded-full bg-yellow-400 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('FF33FF')" class="w-5 h-5 rounded-full bg-fuchsia-500 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('FF8833')" class="w-5 h-5 rounded-full bg-orange-500 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('00FFFF')" class="w-5 h-5 rounded-full bg-cyan-400 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('FF0055')" class="w-5 h-5 rounded-full bg-pink-600 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('9933FF')" class="w-5 h-5 rounded-full bg-purple-600 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('FFCC00')" class="w-5 h-5 rounded-full bg-amber-400 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('00FF00')" class="w-5 h-5 rounded-full bg-green-500 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('FF5555')" class="w-5 h-5 rounded-full bg-red-400 cursor-pointer mx-auto"></div>
+                            <div onclick="insertColor('888888')" class="w-5 h-5 rounded-full bg-gray-500 cursor-pointer mx-auto"></div>
+                        </div>
+                    </div>
+
+                    <!-- Input Area -->
+                    <div>
+                        <div class="flex justify-between text-[10px] text-gray-500 mb-1 font-bold">
+                            <span>📦 BIO CONTENT</span>
+                            <span id="charCount">0/250 chars</span>
+                        </div>
+                        <textarea id="bioTextInput" oninput="updatePreview()" maxlength="250" rows="3" placeholder="Enter Your Bio" class="w-full p-3 bg-gray-950 border border-amber-600/30 rounded-xl focus:outline-none focus:border-amber-500 text-sm font-mono text-amber-100 transition-all duration-200"></textarea>
+                    </div>
+
+                    <!-- Max Limit Alert Notification -->
+                    <div id="maxLimitAlert" class="hidden text-center text-[11px] text-red-400 bg-red-950/30 border border-red-900/50 py-1.5 rounded-xl font-bold transition duration-300">
+                        ⚠️ Maximum limit of 250 characters reached!
+                    </div>
+
+                    <!-- Updated Preview In-game -->
+                    <div>
+                        <div class="text-[10px] text-gray-500 mb-1 font-bold uppercase tracking-wider">
+                            👁️ Live Preview (In-Game Style)
+                        </div>
+                        <div class="bg-gray-950 p-3 rounded-xl border border-gray-900">
+                            <div id="bioLivePreview" class="text-sm font-semibold min-h-[24px] break-words whitespace-pre-wrap text-gray-300">Preview looks bio...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Methods Partition -->
+                <div class="bg-gray-900/40 p-4 rounded-2xl border border-gray-800/80 space-y-4">
+                    <div class="space-y-2">
+                        <span class="text-xs font-black text-amber-500">Method 1: Guest Account (UID + Pass)</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="bioUidInput" placeholder="Guest UID" class="px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs">
+                            <input type="text" id="bioPassInput" placeholder="Password (Optional)" class="px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs">
+                        </div>
+                        <button onclick="changeBio('pass')" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-2 text-xs rounded-xl transition">Change Bio Uid Pass</button>
+                    </div>
+                    <div class="border-t border-gray-900"></div>
+                    <div class="space-y-2">
+                        <span class="text-xs font-black text-orange-500">Method 2: Access Token Method</span>
+                        <input type="text" id="bioAccessInput" placeholder="6b57c36dd528ae77a97539d42a56fa684b..." class="w-full px-3 py-2 bg-gray-950 border border-gray-800 rounded-lg text-xs font-mono">
+                        <button onclick="changeBio('access')" class="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-2 text-xs rounded-xl transition">Change Bio Access Token</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div id="status" class="hidden text-center text-xs text-yellow-400 mt-3 py-2 bg-gray-900 rounded-xl border border-yellow-600/20 animate-pulse">Processing...</div>
+
+        <!-- Beautifully Structured Result Box -->
+        <div id="resultBox" class="hidden mt-2 bg-gray-900 p-4 rounded-xl border border-gray-800 shadow-xl">
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-800">
+                <h3 id="resultTitle" class="text-xs font-bold uppercase tracking-wider">Result:</h3>
+                <button onclick="document.getElementById('resultBox').classList.add('hidden')" class="text-xs text-gray-500 hover:text-gray-300 font-bold cursor-pointer">Clear</button>
+            </div>
+            <!-- Dynamic Content Area -->
+            <div id="resultContent" class="text-xs space-y-3 font-sans"></div>
+        </div>
+    </div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const resultBox = document.getElementById('resultBox');
+        const resultContent = document.getElementById('resultContent');
+        const resultTitle = document.getElementById('resultTitle');
+        const bioInput = document.getElementById('bioTextInput');
+        const previewDiv = document.getElementById('bioLivePreview');
+        const alertDiv = document.getElementById('maxLimitAlert');
+        let countdownInterval = null;
+
+        function switchTab(tabName) {
+            ['like', 'info', 'bio'].forEach(t => {
+                document.getElementById(t + 'Tab').classList.remove('active');
+                document.getElementById(t + 'TabBtn').className = "flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 text-gray-400 hover:text-white";
+            });
+            const theme = { like: 'bg-emerald-600', info: 'bg-indigo-600', bio: 'bg-amber-600' };
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            document.getElementById(tabName + 'TabBtn').className = `flex-1 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 text-white shadow-lg ${theme[tabName]}`;
+            statusDiv.classList.add('hidden'); resultBox.classList.add('hidden');
+            if(countdownInterval) clearInterval(countdownInterval);
+        }
+
+        function insertFormat(tag) {
+            if (bioInput.value.length + tag.length > 250) {
+                triggerAlert();
+                return;
+            }
+            const start = bioInput.selectionStart;
+            bioInput.value = bioInput.value.substring(0, start) + tag + bioInput.value.substring(bioInput.selectionEnd);
+            bioInput.focus(); bioInput.selectionStart = bioInput.selectionEnd = start + tag.length;
+            updatePreview();
+        }
+
+        function insertColor(hex) { insertFormat(`[${hex}]`); }
+        function clearBioText() { bioInput.value = ''; updatePreview(); }
+
+        function triggerAlert() {
+            alertDiv.classList.remove('hidden');
+            bioInput.classList.add('border-red-500', 'focus:border-red-500');
+            setTimeout(() => {
+                alertDiv.classList.add('hidden');
+                bioInput.classList.remove('border-red-500', 'focus:border-red-500');
+            }, 4000);
+        }
+
+        function updatePreview() {
+            let text = bioInput.value;
+            document.getElementById('charCount').innerText = `${text.length}/250 chars`;
+            if (text.length >= 250) triggerAlert();
+            let formatted = text.replace(/\[([0-9A-Fa-f]{6})\]([^\[]*)/g, (match, hex, val) => `<span style="color: #${hex}">${val}</span>`);
+            formatted = formatted.replace(/\[b\]/gi, '').replace(/\[c\]/gi, '');
+            previewDiv.innerHTML = formatted || "Preview looks bio...";
+        }
+
+        function showLoading(msg) { statusDiv.innerText = msg; statusDiv.classList.remove('hidden'); resultBox.classList.add('hidden'); if(countdownInterval) clearInterval(countdownInterval); }
+        
+        // সম্পূর্ণ মডিফাইড নিখুঁত বাংলাদেশ সময় (ভোর ০৪:০০ এএম) কাউন্টডাউন লজিক
+        function start4AMCountdown() {
+            if(countdownInterval) clearInterval(countdownInterval);
+            
+            const timerEl = document.getElementById('nextLikeTimer');
+            if(!timerEl) return;
+
+            function updateTimer() {
+                const now = new Date();
+                
+                // আন্তর্জাতিক মান সময় হিসাব করে বাংলাদেশ কারেন্ট টাইমে নিখুঁত কনভার্সন
+                const bdOffset = 6 * 60 * 60 * 1000; // Asia/Dhaka GMT+6 (in milliseconds)
+                const utc = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
+                const bdTime = new Date(utc + bdOffset);
+                
+                // বাংলাদেশ সময় অনুযায়ী ভোর ৪টার জন্য টার্গেট অবজেক্ট তৈরি
+                let targetBD = new Date(bdTime);
+                targetBD.setHours(4, 0, 0, 0);
+
+                // যদি বাংলাদেশে অলরেডি ৪টা বেজে পার হয়ে যায়, তবে কাউন্টডাউন আগামীকাল ভোর ৪টার দিকে তাক করবে
+                if (bdTime >= targetBD) {
+                    targetBD.setDate(targetBD.getDate() + 1);
+                }
+
+                // মিলি-সেকেন্ডের নিখুঁত ডিফারেন্স নির্ধারণ
+                const diff = targetBD - bdTime;
+                
+                // টাইম ফরম্যাট প্রসেসিং
+                const hrs = Math.floor(diff / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                // জিরো প্যাডিং সহ রিয়েল-টাইম স্ক্রিন আপডেট
+                if (diff <= 0) {
+                    timerEl.innerText = "00h 00m 00s";
+                    clearInterval(countdownInterval);
+                } else {
+                    timerEl.innerText = `${String(hrs).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m ${String(secs).padStart(2, '0')}s`;
+                }
+            }
+
+            updateTimer();
+            countdownInterval = setInterval(updateTimer, 1000);
+        }
+
+        function showResult(data, themeClass) {
+            statusDiv.classList.add('hidden'); 
+            resultBox.classList.remove('hidden');
+            resultTitle.className = `text-xs font-bold uppercase tracking-wider ${themeClass}`;
+            resultContent.innerHTML = ''; 
+
+            if (typeof data === 'object' && data !== null) {
+                if ('LikesGivenByAPI' in data || 'LikesafterCommand' in data) {
+                    const given = data.LikesGivenByAPI ?? 0;
+                    const after = data.LikesafterCommand ?? 0;
+                    const before = data.LikesbeforeCommand ?? 0;
+                    const status = data.status ?? 2;
+
+                    const givenColor = given > 0 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold';
+                    const afterColor = after > before ? 'text-emerald-400 font-bold' : 'text-gray-300';
+                    const statusBadge = status === 1 
+                        ? '<span class="px-2 py-0.5 text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-900 rounded font-bold">1</span>' 
+                        : '<span class="px-2 py-0.5 text-[10px] bg-red-950 text-red-400 border border-red-900 rounded font-bold">2</span>';
+
+                    let messageHtml = '';
+                    if (status === 1) {
+                        messageHtml = `
+                            <div class="bg-emerald-950/40 border border-emerald-900/50 p-2.5 rounded-xl text-emerald-400 text-center font-medium text-[11px]">
+                                🎉 Success! Your likes have been processed. You can take likes again at 04:00 AM.
+                            </div>
+                        `;
+                    } else {
+                        messageHtml = `
+                            <div class="bg-red-950/40 border border-red-900/50 p-2.5 rounded-xl text-red-400 text-center font-medium text-[11px]">
+                                ⚠️ Like apply again today 04:00 AM.
+                            </div>
+                        `;
+                    }
+
+                    let htmlString = `
+                        <div class="space-y-3">
+                            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800/60 space-y-2">
+                                <div class="flex justify-between items-center border-b border-gray-800 pb-1.5 mb-1">
+                                    <span class="text-xs font-black text-emerald-400 flex items-center gap-1">👍 LIKE REPORT</span>
+                                    <span class="text-[10px] bg-gray-900 border border-gray-800 text-gray-400 px-2 py-0.5 rounded font-mono font-bold">${data.ReleaseVersion || 'N/A'}</span>
+                                </div>
+                                
+                                <div class="bg-gray-900/20 p-3 rounded-2xl border border-gray-900/50 space-y-2 mt-2 font-sans">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-500 font-medium">PlayerNickname:</span>
+                                        <span class="font-bold text-gray-100 truncate max-w-[180px]">${data.PlayerNickname || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">LikesGivenByAPI:</span>
+                                        <span class="${givenColor}">${given}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">LikesafterCommand:</span>
+                                        <span class="${afterColor}">${after}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">LikesbeforeCommand:</span>
+                                        <span class="text-gray-300">${before}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">Region:</span>
+                                        <span class="font-mono text-indigo-400 font-bold tracking-wide">${data.Region || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">UID:</span>
+                                        <span class="font-mono text-amber-400 font-bold tracking-wide">${data.UID || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">Status:</span>
+                                        ${statusBadge}
+                                    </div>
+                                </div>
+                            </div>
+
+                            ${messageHtml}
+
+                            <!-- টাইম কাউন্টডাউন উইজেট -->
+                            <div class="bg-gray-950/80 border border-gray-800 p-2.5 rounded-xl flex justify-between items-center font-mono text-[11px]">
+                                <span class="text-gray-500 font-bold uppercase tracking-wider">⏳ Live Time</span>
+                                <span id="nextLikeTimer" class="text-amber-400 font-black tracking-wide bg-amber-950/30 px-2 py-0.5 rounded border border-amber-900/40">00h 00m 00s</span>
+                            </div>
+                        </div>
+                    `;
+
+                    resultContent.innerHTML = htmlString;
+                    start4AMCountdown(); 
+                    return;
+                }
+
+                if (data.basicInfo || data.socialInfo || data.profileInfo || data.petInfo || data.creditScoreInfo || data.diamondCostRes) {
+                    let htmlString = `<div class="space-y-3">`;
+
+                    if (data.basicInfo) {
+                        const bi = data.basicInfo;
+                        htmlString += `
+                            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800/60 space-y-2">
+                                <div class="flex justify-between items-center border-b border-gray-800 pb-1.5 mb-1">
+                                    <span class="text-xs font-black text-indigo-400 flex items-center gap-1">👤 PLAYER PROFILE</span>
+                                    <span class="text-[10px] bg-indigo-950 border border-indigo-900/50 text-indigo-400 px-2 py-0.5 rounded font-mono font-bold">${bi.region || 'N/A'}</span>
+                                </div>
+                                
+                                <div class="bg-gray-900/20 p-3 rounded-2xl border border-gray-900/50 space-y-2 mt-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-gray-500 font-medium">Name:</span>
+                                        <span class="font-bold text-gray-100 truncate max-w-[180px]">${bi.nickname || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">Likes:</span>
+                                        <span class="font-bold text-rose-500 flex items-center gap-1">❤️ ${bi.liked || '0'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">Level:</span>
+                                        <span class="font-bold text-emerald-400">${bi.level || '0'} (${bi.levelProgress || '0%'})</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">UID:</span>
+                                        <span class="font-mono text-amber-400 font-bold tracking-wide">${bi.accountId || 'N/A'}</span>
+                                    </div>
+                                    <div class="flex justify-between items-center pt-1.5 border-t border-gray-900/60">
+                                        <span class="text-gray-500 font-medium">Region:</span>
+                                        <span class="font-mono text-indigo-400 font-bold tracking-wide">${bi.region || 'N/A'}</span>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-1 gap-1 pt-1">
+                                    <div class="flex justify-between"><span class="text-gray-500 font-medium">BR Rank:</span> <span class="text-cyan-400 font-bold">${bi.rankingName || 'N/A'}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500 font-medium">CS Rank:</span> <span class="text-purple-400 font-bold">${bi.csRankingName || 'N/A'}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500 font-medium">Title:</span> <span class="text-blue-400 font-medium">${bi.titleName || 'None'}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500 font-medium">Gun Skin:</span> <span class="text-amber-500 font-medium truncate max-w-[180px]">${bi.equippedGunName || 'None'}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500 font-medium">Ban Status:</span> <span class="${bi.banStatus === 'Not Banned' ? 'text-emerald-400' : 'text-red-400'} font-bold">${bi.banStatus || 'Unknown'}</span></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (data.profileInfo) {
+                        const pi = data.profileInfo;
+                        htmlString += `
+                            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800/60 space-y-2">
+                                <div class="flex items-center gap-1 border-b border-gray-800 pb-1 mb-1">
+                                    <span class="text-[10px] font-bold text-purple-400 tracking-wider uppercase">🧬 CHARACTER & SKILLS</span>
+                                </div>
+                                <div class="text-xs text-gray-300 space-y-1">
+                                    <div><span class="text-gray-500 font-medium">Avatar:</span> <span class="text-gray-200 font-semibold">${pi.avatarName || 'N/A'}</span></div>
+                                    <div class="bg-gray-950/80 p-2 rounded-lg border border-gray-900 font-medium text-center text-purple-300 text-[11px] mt-1">
+                                        ${pi.equippedSkillsNames || 'No Skills Equipped'}
+                                    </div>
+                                </div>
+                        `;
+                        if(pi.clothesNames && pi.clothesNames.length > 0) {
+                            htmlString += `
+                                <div class="mt-2 pt-1.5 border-t border-gray-900">
+                                    <span class="text-[9px] font-bold text-gray-500 tracking-wider uppercase block mb-1">👕 EQUIPPED CLOTHES</span>
+                                    <div class="flex flex-wrap gap-1">
+                                        ${pi.clothesNames.map(c => `<span class="text-[10px] bg-gray-900 border border-gray-800 text-gray-300 px-1.5 py-0.5 rounded">${c}</span>`).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        htmlString += `</div>`;
+                    }
+
+                    if (data.petInfo && data.petInfo.petName) {
+                        const pet = data.petInfo;
+                        htmlString += `
+                            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800/60 space-y-1.5">
+                                <span class="text-[10px] font-bold text-amber-400 tracking-wider uppercase block border-b border-gray-800 pb-1 mb-1">🐾 PET DETAILS</span>
+                                <div class="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-300">
+                                    <div class="flex justify-between"><span class="text-gray-500">Pet Name:</span> <span class="text-amber-400 font-bold">${pet.petName}</span></div>
+                                    <div class="flex justify-between"><span class="text-gray-500">Level:</span> <span class="font-bold text-emerald-400">Lv. ${pet.level}</span></div>
+                                    <div class="flex justify-between col-span-2"><span class="text-gray-500">Skill:</span> <span class="text-gray-200 font-medium">${pet.skillName || 'None'}</span></div>
+                                    <div class="flex justify-between col-span-2"><span class="text-gray-500">Skin:</span> <span class="text-gray-400 text-[11px] font-mono truncate">${pet.skinName || 'None'}</span></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (data.socialInfo) {
+                        const si = data.socialInfo;
+                        htmlString += `
+                            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800/60 space-y-1.5">
+                                <span class="text-[10px] font-bold text-teal-400 tracking-wider uppercase block border-b border-gray-800 pb-1 mb-1">💬 SOCIAL & SIGNATURE</span>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-300 mb-1">
+                                    <div><span class="text-gray-500">Gender:</span> <span class="font-medium">${si.gender || 'N/A'}</span></div>
+                                    <div><span class="text-gray-500">Language:</span> <span class="font-medium">${si.language || 'N/A'}</span></div>
+                                </div>
+                                ${si.signature ? `<div class="bg-gray-950/80 p-2 rounded-lg border border-gray-900 text-xs font-mono text-amber-200/90 whitespace-pre-wrap leading-relaxed break-words">${si.signature}</div>` : ''}
+                            </div>
+                        `;
+                    }
+
+                    if (data.creditScoreInfo || data.diamondCostRes) {
+                        htmlString += `
+                            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800/60 space-y-1.5">
+                                <span class="text-[10px] font-bold text-orange-400 tracking-wider uppercase block border-b border-gray-800 pb-1 mb-1">📊 ACCOUNT UTILITIES</span>
+                                <div class="grid grid-cols-2 gap-2 text-xs text-gray-300">
+                                    ${data.creditScoreInfo ? `<div class="flex justify-between pr-2"><span class="text-gray-500">Credit Score:</span> <span class="text-emerald-400 font-bold">${data.creditScoreInfo.creditScore}</span></div>` : ''}
+                                    ${data.diamondCostRes ? `<div class="flex justify-between pl-2 border-l border-gray-900"><span class="text-gray-500">Diamond Cost:</span> <span class="text-cyan-400 font-bold">💎 ${data.diamondCostRes.diamondCost}</span></div>` : ''}
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    if (data.historyEpInfo && data.historyEpInfo.length > 0) {
+                        htmlString += `
+                            <div class="bg-gray-950/60 p-3 rounded-xl border border-gray-800/60 space-y-2">
+                                <span class="text-[10px] font-bold text-rose-400 tracking-wider uppercase block border-b border-gray-800 pb-1">👑 RECENT ELITE PASS HISTORY</span>
+                                <div class="max-h-[160px] overflow-y-auto space-y-1.5 pr-1">
+                        `;
+                        data.historyEpInfo.forEach(ep => {
+                            htmlString += `
+                                <div class="flex justify-between items-center bg-gray-950/80 p-2 rounded-lg border border-gray-900 text-[11px]">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-gray-200">EP ${ep.epEventId}</span>
+                                        ${ep.ownedPass ? `<span class="text-[9px] bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30 px-1 rounded uppercase">OWNED</span>` : ''}
+                                    </div>
+                                    <div class="text-gray-400">Badges: <span class="text-rose-400 font-bold">${ep.badgeCnt}</span></div>
+                                </div>
+                            `;
+                        });
+                        htmlString += `</div></div>`;
+                    }
+
+                    htmlString += `</div>`;
+                    resultContent.innerHTML = htmlString;
+                } else {
+                    let container = document.createElement('div');
+                    container.className = "flex flex-col gap-1.5";
+                    for (let key in data) {
+                        if (data.hasOwnProperty(key)) {
+                            let row = document.createElement('div');
+                            row.className = "flex justify-between items-start bg-gray-950/50 p-2 rounded-lg border border-gray-800/40 gap-4";
+                            let label = document.createElement('span');
+                            label.className = "text-[10px] text-gray-400 font-bold uppercase tracking-wide pt-0.5 shrink-0";
+                            label.innerText = key.replace(/_/g, ' ');
+                            let value = document.createElement('span');
+                            
+                            if (key === 'status' || key === 'success') {
+                                value.className = data[key] === 1 || data[key] === true || String(data[key]).includes('Success') 
+                                    ? "text-[11px] bg-emerald-950/50 text-emerald-400 px-2 py-0.5 rounded-md font-bold border border-emerald-900/50" 
+                                    : "text-[11px] bg-red-950/50 text-red-400 px-2 py-0.5 rounded-md font-bold border border-red-900/50";
+                            } else if (key === 'uid' || key === 'http_code') {
+                                value.className = "text-xs text-amber-400 font-mono font-bold";
+                            } else {
+                                value.className = "text-xs text-gray-200 text-right font-medium break-all";
+                            }
+                            value.innerText = data[key];
+                            row.appendChild(label); row.appendChild(value); container.appendChild(row);
+                        }
+                    }
+                    resultContent.appendChild(container);
+                }
+            } else {
+                let plainText = document.createElement('pre');
+                plainText.className = "text-xs overflow-x-auto font-mono whitespace-pre-wrap text-gray-300";
+                plainText.innerText = data;
+                resultContent.appendChild(plainText);
+            }
+        }
+
+        async function fetchInfo() {
+            const uid = document.getElementById('infoUidInput').value.trim();
+            if(!uid) return alert('UID দিন!');
+            showLoading('🔄 Checking info');
+            try {
+                const res = await fetch('/get_info', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uid }) });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    showResult(errData.error || errData.message || `Error ${res.status}: Failed to fetch profile.`, 'text-red-400');
+                    return;
+                }
+                showResult(await res.json(), 'text-indigo-400');
+            } catch { showResult('Error fetching profile.', 'text-red-400'); }
+        }
+
+        async function sendLike() {
+            const uid = document.getElementById('likeUidInput').value.trim();
+            const server = document.getElementById('serverInput').value;
+            if(!uid) return alert('UID দিন!');
+            showLoading('⚡ Requesting likes...');
+            try {
+                const res = await fetch('/send_like', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ uid, server }) });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    showResult(errData.error || errData.message || `Error ${res.status}: Like processing failed.`, 'text-red-400');
+                    return;
+                }
+                showResult(await res.json(), 'text-emerald-400');
+            } catch { showResult('Like processing failed.', 'text-red-400'); }
+        }
+
+        async function changeBio(method) {
+            const bio = bioInput.value.trim();
+            if(!bio) return alert('বায়ো টেক্সট লিখুন!');
+            let endpoint = '/change_bio_access', payload = { bio };
+
+            if(method === 'pass') {
+                const uid = document.getElementById('bioUidInput').value.trim();
+                const pass = document.getElementById('bioPassInput').value.trim();
+                if(!uid) return alert('Guest UID প্রয়োজন!');
+                endpoint = '/change_bio_pass'; payload.uid = uid; if(pass) payload.pass = pass;
+            } else {
+                const access = document.getElementById('bioAccessInput').value.trim();
+                if(access) payload.access = access;
+            }
+
+            showLoading('📝 Sending Bio Request...');
+            try {
+                const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    showResult(errData.error || errData.message || `Error ${res.status}: Process encountered an error.`, 'text-red-400');
+                    return;
+                }
+                showResult(await res.json(), 'text-amber-400');
+            } catch { showResult('Process encountered an error.', 'text-red-400'); }
+        }
+    </script>
+</body>
+</html>       
